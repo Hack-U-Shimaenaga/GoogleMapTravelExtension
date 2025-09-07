@@ -1,0 +1,2 @@
+# GoogleMapTravelExtension
+Hack U Kanazawaの作品です。ウェブサイトの右上に地図を表示し、旅行などで行きたい地点を登録でき、しおりが作れるようになります
