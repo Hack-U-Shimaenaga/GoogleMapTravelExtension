@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Map by Place Name</title>
+  <style>
+    #map { width: 100%; height: 100%; margin: 0; padding: 0; }
+    html, body { height: 100%; margin: 0; }
+  </style>
+  <script async
+  src="https://maps.googleapis.com/maps/api/js?key=xxx&loading=async">
+  </script>
+  <script>
+    let addressList = [];
+    let addressToNameDict = {};
+    let map;
+    window.addEventListener('message', (event) => {
+      addressList = event.data.addressList;
+      addressToNameDict = event.data.addressToNameDict;
+      if (typeof google !== 'undefined' && google.maps) {
+        // Google Maps APIが読み込み済みならinitMap呼ぶ
+        initMap();
+      }
+    });
+    function initMap() {
+
+      let markers = [];
+
+      const geocoder = new google.maps.Geocoder();
+      if (typeof map === 'undefined' || map === null) {
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 14,
+          center: { lat: 35.681236, lng: 139.767125 }
+        });
+      }
+
+      
+      const bounds = new google.maps.LatLngBounds();
+      for (let i = 0; i < addressList.length; i++) {
+        const address = addressList[i];
+        const placeName = addressToNameDict[address];
+
+        geocoder.geocode({ address: address }, function(results, status) {
+          if (status === "OK") {
+            const location = results[0].geometry.location;
+            
+            
+            const marker = new google.maps.Marker({
+              position: location,
+              map: map,
+              title: placeName
+            });
+            
+            // add to markers
+            markers.push(marker);
+
+            bounds.extend(location);
+            map.fitBounds(bounds);
+            const listener = google.maps.event.addListener(map, "idle", function() {
+              if (map.getZoom() > 14) map.setZoom(14);  // 最大ズーム14に制限
+              google.maps.event.removeListener(listener);
+            });
+            // InfoWindow を作成
+            const infoWindow = new google.maps.InfoWindow({
+              content: placeName
+            });
+
+            // マーカーにマウスオーバーで表示
+            marker.addListener("mouseover", function() {
+              infoWindow.open(map, marker);
+            });
+
+            // マウスアウトで閉じる
+            marker.addListener("mouseout", function() {
+              infoWindow.close();
+            });
+
+            marker.addListener("click", function() {
+              if (confirm(`「${placeName}」を削除しますか？`)) {
+                // 地図からマーカーを削除
+                marker.setMap(null);
+
+                addressList = addressList.filter(a => a !== address);
+                delete addressToNameDict[address];
+                markers = markers.filter(m => m !== marker);
+
+                // 配列から住所を削除
+                addressList = addressList.filter(a => a !== address);
+                delete addressToNameDict[address];
+
+                if (markers.length > 0) {
+                  const newBounds = new google.maps.LatLngBounds();
+                  markers.forEach(m => newBounds.extend(m.getPosition()));
+                  map.fitBounds(newBounds);
+                  if (map.getZoom() > 14) map.setZoom(14);
+                }
+
+                // 親フレームに削除を通知（必要なら）
+                window.parent.postMessage({
+                  type: "markerDeleted",
+                  placeName: placeName,
+                  address: address
+                }, "*");
+              }
+            });
+          } else {
+            window.parent.postMessage({
+              type: "geocodeError",
+              message: "Geocode failed: " + status,
+              placeName: placeName,
+              address: address
+            }, "*");
+          }
+        });
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="map"></div>
+</body>
+</html>
