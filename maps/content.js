@@ -2,13 +2,16 @@ window.onload = function() {
 
   let currentJWT = "";
 
+  // 今のJWTを取得する
   async function getCurrentJWT() {
     const result = await chrome.storage.local.get(["jwt"]);
     const currentJWT = result.jwt;
+    console.log("currentJWT");
     console.log(currentJWT);
     return currentJWT;
   }
 
+  // 新しいJWTを取得する
   async function getNewJWT(usernamae, password) {
     const response = await fetch("https://msi15vtq54.execute-api.ap-northeast-1.amazonaws.com/dev_travel/get_jwt");
     const jwt = await response.text()
@@ -19,6 +22,7 @@ window.onload = function() {
     return jwt;
   }
 
+  // 今あるJWTを認証する
   async function authJWT(jwt) {
     const response = await fetch("https://msi15vtq54.execute-api.ap-northeast-1.amazonaws.com/dev_travel/auth_jwt", {
       method: "POST",
@@ -31,10 +35,12 @@ window.onload = function() {
     return data;
   }
 
+  // 初期動作
+  // もしJWTを保持してなかったら、新しくJWTを取得して、認証を元に、userの情報を取得
   async function init() {
     // 保存されている JWT を取得
     let currentJWT = await getCurrentJWT(); // await 必須
-    console.log("current?", currentJWT);
+    console.log("currentJWT", currentJWT);
 
     if (!currentJWT) {
       // JWT がなければ新規取得
