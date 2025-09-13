@@ -1,6 +1,7 @@
 window.onload = function() {
 
   let currentJWT = "";
+  let addresses = [];
 
   // 今のJWTを取得する
   async function getCurrentJWT() {
@@ -54,8 +55,16 @@ window.onload = function() {
 
     console.log(userData.usernamae);
     console.log(userData.addresses);
+    console.log(userData.addressToNameDict);
 
     let addresses = userData.addresses;
+    let addressToNameDict = userData.addressToNameDict;
+    chrome.storage.local.set({ addresses: addresses }, () => {
+      console.log("addresses saved to storage");
+    });
+    chrome.storage.local.set({ addressToNameDict: addressToNameDict }, () => {
+      console.log("addressToNameDict saved to storage");
+    });
     if (addresses != null && addresses.length != 0) {
       showNewAddress();
     }
@@ -324,8 +333,11 @@ window.onload = function() {
       document.body.appendChild(mapContainer);
 
       // iframe内のgoogle mapにaddressListを渡す
-      mapIframe.onload = () => {
-        let addressList = JSON.parse(localStorage.getItem("addresses") || "[]");
+      mapIframe.onload = async () => {
+        const result = await chrome.storage.local.get(["addresses"]);
+        const addressList = result.addresses || [];
+        // let addressList = JSON.parse(localStorage.getItem("addresses") || "[]");
+        console.log("addressList");
         console.log(addressList);
         mapIframe.contentWindow.postMessage({ addressList: addressList, addressToNameDict: addressToNameDict}, '*');
       };
