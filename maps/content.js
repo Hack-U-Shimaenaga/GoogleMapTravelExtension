@@ -1,6 +1,65 @@
 window.onload = function() {
+
+  let currentJWT = "";
+
+  async function getCurrentJWT() {
+    const result = await chrome.storage.local.get(["jwt"]);
+    const currentJWT = result.jwt;
+    console.log(currentJWT);
+    return currentJWT;
+  }
+
+  async function getNewJWT(usernamae, password) {
+    const response = await fetch("https://msi15vtq54.execute-api.ap-northeast-1.amazonaws.com/dev_travel/get_jwt");
+    const jwt = await response.text()
+    console.log(jwt)
+    chrome.storage.local.set({ jwt: jwt }, () => {
+      console.log("JWT saved to storage");
+    });
+    return jwt;
+  }
+
+  async function authJWT(jwt) {
+    const response = await fetch("https://msi15vtq54.execute-api.ap-northeast-1.amazonaws.com/dev_travel/auth_jwt", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + jwt
+      }
+    });
+
+    const data = await response.json(); // 認証結果のユーザー情報など
+    return data;
+  }
+
+  async function init() {
+    // 保存されている JWT を取得
+    let currentJWT = await getCurrentJWT(); // await 必須
+    console.log("current?", currentJWT);
+
+    if (!currentJWT) {
+      // JWT がなければ新規取得
+      let username = "username";
+      let password = "password";
+      currentJWT = await getNewJWT(username, password);
+    }
+
+    // JWT を使って認証
+    const userData = await authJWT(currentJWT);
+
+    console.log(userData.usernamae);
+    console.log(userData.addresses);
+
+    let addresses = userData.addresses;
+    if (addresses != null && addresses.length != 0) {
+      showNewAddress();
+    }
+  }
+
+  init();
+
   // 今まで検索したものの表示
   let previousAddress = localStorage.getItem("addresses");
+  console.log(previousAddress);
   if (previousAddress != null && previousAddress.length != 0) {
     showNewAddress();
   }
@@ -31,6 +90,7 @@ window.onload = function() {
   // iframe内のgoogle map htmlからの検索結果メッセージを受け取る
   window.addEventListener("message", (event) => {
     const data = event.data;
+    console.log(data)
     if (data.type === "geocodeError") {
       alert(data.placeName + ": 検索結果が出てきませんでした。住所または別の単語で検索してください。")
       deleteFromAddressListAndDict(data.address);
@@ -257,6 +317,7 @@ window.onload = function() {
       document.body.appendChild(showMapIcon);
       document.body.appendChild(mapContainer);
 
+      // iframe内のgoogle mapにaddressListを渡す
       mapIframe.onload = () => {
         let addressList = JSON.parse(localStorage.getItem("addresses") || "[]");
         console.log(addressList);
