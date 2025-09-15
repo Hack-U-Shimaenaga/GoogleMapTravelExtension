@@ -166,18 +166,19 @@ window.onload = function() {
     try {
       // コンテナ作成
       mapContainer.style.position = 'fixed';
-      mapContainer.style.right = '0';
-      mapContainer.style.top = '0';
+      mapContainer.style.left = '20px';   // ← right を削除して left に変更
+      mapContainer.style.top = '20px';
       mapContainer.style.width = '300px';
       mapContainer.style.height = '250px';
       mapContainer.style.zIndex = '9999';
       mapContainer.style.border = '1px solid #ccc';
       mapContainer.style.boxShadow = '0 0 5px rgba(0,0,0,0.3)';
-      mapContainer.style.resize = 'both'; // 引き伸ばし
+      mapContainer.style.resize = 'both';
       mapContainer.style.overflow = 'auto';
       mapContainer.id = 'mapContainer';
 
       makeResizableLeftBottom(mapContainer);
+      makeDraggable(mapContainer); // ← ドラッグできるように追加
 
       // iframe作成
       const mapIframe = document.createElement('iframe');
@@ -268,6 +269,46 @@ window.onload = function() {
     }
   }
 
+  // --- ここを追加 ---
+  function makeDraggable(element) {
+    let isDragging = false;
+    let startX = 0, startY = 0;
+    let currentX = 0, currentY = 0;
+
+    element.style.transform = "translate(0px, 0px)";
+    element.style.cursor = "grab";
+
+    element.addEventListener("mousedown", (e) => {
+      // ドラッグ対象外
+      if (
+        e.target.tagName === "BUTTON" ||
+        e.target.tagName === "IFRAME" ||
+        e.target.style.cursor === "nwse-resize" // リサイズハンドルを無視
+      ) return;
+
+      isDragging = true;
+      startX = e.clientX - currentX;
+      startY = e.clientY - currentY;
+      element.style.cursor = "grabbing";
+      e.preventDefault();
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+
+      currentX = e.clientX - startX;
+      currentY = e.clientY - startY;
+
+      element.style.transform = `translate(${currentX}px, ${currentY}px)`;
+    });
+
+    document.addEventListener("mouseup", () => {
+      if (!isDragging) return;
+      isDragging = false;
+      element.style.cursor = "grab";
+    });
+  }
+
   function makeResizableLeftBottom(element) {
     const handle = document.createElement('div');
     handle.style.position = 'absolute';
@@ -279,22 +320,23 @@ window.onload = function() {
     handle.style.cursor = 'nwse-resize';
     handle.style.zIndex = '10000';
 
-    element.style.position = 'fixed';  // 固定位置なのでOK
+    element.style.position = 'fixed';
     element.appendChild(handle);
 
     let startX, startY, startWidth, startHeight;
 
     handle.addEventListener('mousedown', (e) => {
       e.preventDefault();
+      e.stopPropagation(); // ← これが重要！ドラッグイベントの伝播を止める
+
       startX = e.clientX;
       startY = e.clientY;
       startWidth = parseInt(document.defaultView.getComputedStyle(element).width, 10);
       startHeight = parseInt(document.defaultView.getComputedStyle(element).height, 10);
 
       function doDrag(e) {
-        // 左下ドラッグなので、横は減少、縦は増加
-        const dx = startX - e.clientX; // 横方向の増減（左にドラッグで幅アップ）
-        const dy = e.clientY - startY; // 縦方向の増減（下にドラッグで高さアップ）
+        const dx = startX - e.clientX; // 横方向の増減
+        const dy = e.clientY - startY; // 縦方向の増減
 
         element.style.width = (startWidth + dx) + 'px';
         element.style.height = (startHeight + dy) + 'px';
