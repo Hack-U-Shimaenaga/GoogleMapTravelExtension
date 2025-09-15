@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "manifest_version": 3,
   "description": "When clicking the address in the website, the google map will pop up",
+  "permissions": ["storage"],
   "content_scripts": [{
     "matches": ["<all_urls>"],
     "exclude_matches": [
