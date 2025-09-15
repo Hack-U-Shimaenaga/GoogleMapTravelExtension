@@ -102,19 +102,20 @@ window.onload = function() {
     console.log(data)
     if (data.type === "geocodeError") {
       alert(data.placeName + ": 検索結果が出てきませんでした。住所または別の単語で検索してください。")
-      deleteFromAddressListAndDict(data.address);
+      await deleteFromAddressListAndDict(data.address);
     } else if (data.type === "markerDeleted") {
       const result = await chrome.storage.local.get(["addressToNameDict"]);
       const addressToNameDict = result.addressToNameDict || [];
+      console.log(data.placeName);
       console.log(addressToNameDict[data.placeName] + "が削除されました")
-      deleteFromAddressListAndDict(data.address);
+      await deleteFromAddressListAndDict(data.address);
     }
   });
 
   // addressをlistから削除
   async function deleteFromAddressListAndDict(addressToRemove) {
     let result = await chrome.storage.local.get(["addresses"]);
-    const addressList = result.addresses || [];
+    let addressList = result.addresses || [];
     console.log("addressList before delete")
     console.log(addressList)
 
@@ -125,6 +126,7 @@ window.onload = function() {
     // localStorage.setItem("addresses", JSON.stringify(addressList));
     chrome.storage.local.set({ addresses: addressList }, () => {
       console.log("delete addresses saved to storage");
+      console.log(addressList);
     });
 
     // 既存の辞書を取得（なければ空オブジェクト）
@@ -137,6 +139,7 @@ window.onload = function() {
     // 保存
     chrome.storage.local.set({ addressToNameDict: addressToNameDict }, () => {
       console.log("delete addressToNameDict saved to storage");
+      console.log(addressToNameDict);
     });
   }
 
