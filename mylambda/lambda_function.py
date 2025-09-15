@@ -37,9 +37,12 @@ def auth_jwt_user():
         return jsonify({"error": "missing token"}), 401
 
     token = auth_header.split(" ")[1]
+    addresses = ["二十一世紀美術館", "金沢駅"]
+    addressToNameDict = {"二十一世紀美術館": "二十一世紀美術館", "金沢駅": "金沢駅"}
+
     try:
         decoded = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-        return jsonify({"user": decoded["user"], "role": decoded["role"]})
+        return jsonify({"user": decoded["user"], "role": decoded["role"], "addresses": addresses, "addressToNameDict": addressToNameDict})
     except jwt.ExpiredSignatureError:
         return jsonify({"error": "token expired"}), 401
     except jwt.InvalidTokenError:
