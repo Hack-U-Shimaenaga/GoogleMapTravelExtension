@@ -45,7 +45,7 @@ window.onload = function() {
 
     if (!currentJWT) {
       // JWT がなければ新規取得
-      let username = "username";
+      let username = "test_user";
       let password = "password";
       currentJWT = await getNewJWT(username, password);
     }
@@ -53,31 +53,25 @@ window.onload = function() {
     // JWT を使って認証
     const userData = await authJWT(currentJWT);
 
-    console.log(userData.usernamae);
-    console.log(userData.addresses);
-    console.log(userData.addressToNameDict);
+    console.log("username");
+    console.log(userData.user);
 
-    let addresses = userData.addresses;
-    let addressToNameDict = userData.addressToNameDict;
+    let addresses = userData.addresses || [];
+    let addressToNameDict = userData.addressToNameDict || {};
     chrome.storage.local.set({ addresses: addresses }, () => {
       console.log("addresses saved to storage");
+      console.log(addresses);
     });
     chrome.storage.local.set({ addressToNameDict: addressToNameDict }, () => {
       console.log("addressToNameDict saved to storage");
+      console.log(addressToNameDict);
     });
     if (addresses != null && addresses.length != 0) {
-      showNewAddress();
+      await showNewAddress();
     }
   }
 
   init();
-
-  // 今まで検索したものの表示
-  let previousAddress = localStorage.getItem("addresses");
-  console.log(previousAddress);
-  if (previousAddress != null && previousAddress.length != 0) {
-    showNewAddress();
-  }
 
   // textを選択した時に住所追加できるようにする
   document.addEventListener('mouseup', (event) => {
@@ -103,39 +97,47 @@ window.onload = function() {
 
 
   // iframe内のgoogle map htmlからの検索結果メッセージを受け取る
-  window.addEventListener("message", (event) => {
+  window.addEventListener("message", async (event) => {
     const data = event.data;
     console.log(data)
     if (data.type === "geocodeError") {
       alert(data.placeName + ": 検索結果が出てきませんでした。住所または別の単語で検索してください。")
       deleteFromAddressListAndDict(data.address);
     } else if (data.type === "markerDeleted") {
-      let addressToNameDict = JSON.parse(localStorage.getItem("addressToName") || "{}");
+      const result = await chrome.storage.local.get(["addressToNameDict"]);
+      const addressToNameDict = result.addressToNameDict || [];
       console.log(addressToNameDict[data.placeName] + "が削除されました")
       deleteFromAddressListAndDict(data.address);
-      console.log(localStorage.getItem("addresses"));
-      console.log(localStorage.getItem("addressToName"));
     }
   });
 
   // addressをlistから削除
-  function deleteFromAddressListAndDict(addressToRemove) {
-    let addressList = JSON.parse(localStorage.getItem("addresses") || "[]");
+  async function deleteFromAddressListAndDict(addressToRemove) {
+    let result = await chrome.storage.local.get(["addresses"]);
+    const addressList = result.addresses || [];
+    console.log("addressList before delete")
+    console.log(addressList)
 
     // 配列から該当アドレスを除外
     addressList = addressList.filter(addr => addr !== addressToRemove);
 
     // 更新した配列をlocalStorageに保存
-    localStorage.setItem("addresses", JSON.stringify(addressList));
+    // localStorage.setItem("addresses", JSON.stringify(addressList));
+    chrome.storage.local.set({ addresses: addressList }, () => {
+      console.log("delete addresses saved to storage");
+    });
 
     // 既存の辞書を取得（なければ空オブジェクト）
-    let addressToNameDict = JSON.parse(localStorage.getItem("addressToName") || "{}");
+    result = await chrome.storage.local.get(["addressToNameDict"]);
+    const addressToNameDict = result.addressToNameDict || [];
 
     // 例: addressを削除
     delete addressToNameDict[addressToRemove];
 
     // 保存
-    localStorage.setItem("addressToName", JSON.stringify(addressToNameDict));
+    chrome.storage.local.set({ addressToNameDict: addressToNameDict }, () => {
+      console.log("delete addressToNameDict saved to storage");
+    });
   }
 
   // 住所をハイライトして、クリックすると地図上に出るようにする
@@ -203,9 +205,10 @@ window.onload = function() {
     }
   }
 
-  function addAddressToList(address) {
+  async function addAddressToList(address) {
     // 既存の住所リストを取得（なければ空配列）
-    let addressList = JSON.parse(localStorage.getItem("addresses") || "[]");
+    const result = await chrome.storage.local.get(["addresses"]);
+    const addressList = result.addresses || [];
 
     // 配列にaddressが含まれているかチェック
     if (!addressList.includes(address)) {
@@ -213,24 +216,30 @@ window.onload = function() {
       addressList.push(address);
 
       // JSONに変換して保存
-      localStorage.setItem("addresses", JSON.stringify(addressList));
+      chrome.storage.local.set({ addresses: addressList }, () => {
+        console.log("add addresses saved to storage");
+        console.log(addressList);
+      });
     }
   }
 
-  function addAddressToNameDict(address, placeName) {
+  async function addAddressToNameDict(address, placeName) {
     // 既存の辞書を取得（なければ空オブジェクト）
-    let addressToNameDict = JSON.parse(localStorage.getItem("addressToName") || "{}");
+    const result = await chrome.storage.local.get(["addressToNameDict"]);
+    const addressToNameDict = result.addressToNameDict || [];
 
     // 例: placeNameをキーにして値をセット
     addressToNameDict[address] = placeName; // ここに対応する名前や情報を入れる
 
     // 保存
-    localStorage.setItem("addressToName", JSON.stringify(addressToNameDict));
+    chrome.storage.local.set({ addressToNameDict: addressToNameDict }, () => {
+      console.log("add addressToNameDict saved to storage");
+      console.log(addressToNameDict);
+    });
   }
 
-  function showNewAddress() {
-    let addressToNameDict = JSON.parse(localStorage.getItem("addressToName") || "{}");
-    console.log(addressToNameDict);
+  async function showNewAddress() {
+    console.log("showNewAddress");
     const existingMap = document.getElementById('mapContainer');
     console.log(existingMap)
     if (existingMap) {
@@ -275,8 +284,8 @@ window.onload = function() {
       deleteMapButton.style.cursor = 'pointer';
       deleteMapButton.addEventListener('click', function() {
         mapContainer.remove();
-        localStorage.setItem("addresses", JSON.stringify([]));
-        localStorage.setItem("addressToName", JSON.stringify({}));
+        chrome.storage.local.set({ addresses: [] })
+        chrome.storage.local.set({ addressToNameDict: {} })
       });
 
       // 縮小ボタン作成
@@ -334,11 +343,14 @@ window.onload = function() {
 
       // iframe内のgoogle mapにaddressListを渡す
       mapIframe.onload = async () => {
-        const result = await chrome.storage.local.get(["addresses"]);
+        let result = await chrome.storage.local.get(["addresses"]);
         const addressList = result.addresses || [];
-        // let addressList = JSON.parse(localStorage.getItem("addresses") || "[]");
+        result = await chrome.storage.local.get(["addressToNameDict"]);
+        const addressToNameDict = result.addressToNameDict || [];
         console.log("addressList");
         console.log(addressList);
+        console.log("addressToNameDict")
+        console.log(addressToNameDict);
         mapIframe.contentWindow.postMessage({ addressList: addressList, addressToNameDict: addressToNameDict}, '*');
       };
     } catch (error) {
