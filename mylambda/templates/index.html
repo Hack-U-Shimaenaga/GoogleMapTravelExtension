@@ -3,11 +3,12 @@
 <head>
   <title>Map by Place Name</title>
   <style>
-    #map { width: 100%; height: 100%; margin: 0; padding: 0; }
+    #map { width: 100%; height: calc(100% - 30px); margin: 0; padding: 0; }
     html, body { height: 100%; margin: 0; }
+    #login {position: absolute; right: 0px; height: 30px;}
   </style>
   <script async
-  src="https://maps.googleapis.com/maps/api/js?key=xxx&loading=async">
+  src="https://maps.googleapis.com/maps/api/js?key=***&loading=async">
   </script>
   <script>
     let addressList = [];
@@ -117,5 +118,6 @@
 </head>
 <body>
   <div id="map"></div>
+  <button id="login">login to get しおり</button>
 </body>
 </html>
