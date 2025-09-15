@@ -40,32 +40,28 @@ window.onload = function() {
   // もしJWTを保持してなかったら、新しくJWTを取得して、認証を元に、userの情報を取得
   async function init() {
     // 保存されている JWT を取得
-    let currentJWT = await getCurrentJWT(); // await 必須
-    console.log("currentJWT", currentJWT);
+    // let currentJWT = await getCurrentJWT(); // await 必須
+    // console.log("currentJWT", currentJWT);
 
-    if (!currentJWT) {
-      // JWT がなければ新規取得
-      let username = "test_user";
-      let password = "password";
-      currentJWT = await getNewJWT(username, password);
-    }
+    // if (!currentJWT) {
+    //   // JWT がなければ新規取得
+    //   let username = "test_user";
+    //   let password = "password";
+    //   currentJWT = await getNewJWT(username, password);
+    // }
 
-    // JWT を使って認証
-    const userData = await authJWT(currentJWT);
+    // // JWT を使って認証
+    // const userData = await authJWT(currentJWT);
 
-    console.log("username");
-    console.log(userData.user);
+    // console.log("username");
+    // console.log(userData.user);
 
-    let addresses = userData.addresses || [];
-    let addressToNameDict = userData.addressToNameDict || {};
-    chrome.storage.local.set({ addresses: addresses }, () => {
-      console.log("addresses saved to storage");
-      console.log(addresses);
-    });
-    chrome.storage.local.set({ addressToNameDict: addressToNameDict }, () => {
-      console.log("addressToNameDict saved to storage");
-      console.log(addressToNameDict);
-    });
+    let result = await chrome.storage.local.get(["addresses"]);
+    const addresses = result.addresses || [];
+    result = await chrome.storage.local.get(["addressToNameDict"]);
+    const addressToNameDict = result.addressToNameDict || [];
+    console.log(addresses);
+    console.log(addressToNameDict);
     if (addresses != null && addresses.length != 0) {
       await showNewAddress();
     }
