@@ -251,8 +251,8 @@ window.onload = function() {
       mapContainer.style.position = 'fixed';
       mapContainer.style.right = '0';
       mapContainer.style.top = '0';
-      mapContainer.style.width = '300px';
-      mapContainer.style.height = '250px';
+      mapContainer.style.width = '350px';
+      mapContainer.style.height = '300px';
       mapContainer.style.zIndex = '9999';
       mapContainer.style.border = '1px solid #ccc';
       mapContainer.style.boxShadow = '0 0 5px rgba(0,0,0,0.3)';
@@ -262,12 +262,26 @@ window.onload = function() {
 
       makeResizableLeftBottom(mapContainer);
 
-      // iframe作成
+      // Map iframe作成
       const mapIframe = document.createElement('iframe');
       mapIframe.src = `https://msi15vtq54.execute-api.ap-northeast-1.amazonaws.com/dev_travel/map`;
       mapIframe.width = "100%";
       mapIframe.height = "100%";
       mapIframe.style.border = "0";
+
+      // Login iframe作成
+      const loginIframe = document.createElement('iframe');
+      loginIframe.src = `https://msi15vtq54.execute-api.ap-northeast-1.amazonaws.com/dev_travel/show_login`;
+      loginIframe.width = "100%";
+      loginIframe.height = "100%";
+      loginIframe.style.border = "0";
+
+      // Register iframe作成
+      const registerIframe = document.createElement('iframe');
+      registerIframe.src = `https://msi15vtq54.execute-api.ap-northeast-1.amazonaws.com/dev_travel/show_register`;
+      registerIframe.width = "100%";
+      registerIframe.height = "100%";
+      registerIframe.style.border = "0";
 
 
       // deleteボタン作成
@@ -298,6 +312,29 @@ window.onload = function() {
       shrinkMapButton.style.border = 'none';
       shrinkMapButton.style.padding = '5px 10px';
       shrinkMapButton.style.cursor = 'pointer';
+
+      // しおり作るボタン
+      const shioriButton = document.createElement('button');
+      shioriButton.textContent = "しおりを作る";
+      shioriButton.style.position = 'absolute';
+      shioriButton.style.bottom = '0px';
+      shioriButton.style.right = '0px';
+      shioriButton.style.backgroundColor = "yellow";
+      shioriButton.style.border = 'none';
+      shioriButton.style.padding = '5px 10px';
+      shioriButton.style.cursor = 'pointer';
+
+      // 新規アカウント作るボタン
+      const registerButton = document.createElement('button');
+      registerButton.textContent = "新規アカウント作る";
+      registerButton.style.position = 'absolute';
+      registerButton.style.bottom = '0px';
+      registerButton.style.right = '0px';
+      registerButton.style.backgroundColor = "yellow";
+      registerButton.style.border = 'none';
+      registerButton.style.padding = '5px 10px';
+      registerButton.style.cursor = 'pointer';
+      registerButton.style.display = 'none';
 
       // 「地図の表示」ボタン作成（最初は非表示）
       const showMapIcon = document.createElement('img');
@@ -331,11 +368,31 @@ window.onload = function() {
         showMapIcon.style.display = 'none';
       });
 
+      // しおりボタンクリック時の処理
+      shioriButton.addEventListener('click', function() {
+        mapIframe.style.display = "none";
+        shioriButton.style.display = "none";
+        registerButton.style.display = "block";
+      });
+
+      // 新規ボタンクリック時の処理
+      registerButton.addEventListener('click', function() {
+        mapIframe.style.display = "none";
+        loginIframe.style.display = "none";
+        registerIframe.style.display = "block";
+        shioriButton.style.display = "none";
+        registerButton.style.display = "none";
+      });
+
 
 
       // コンテナに追加
       mapContainer.appendChild(mapIframe);
+      mapContainer.appendChild(loginIframe);
+      mapContainer.appendChild(registerIframe);
       mapContainer.appendChild(shrinkMapButton);
+      mapContainer.appendChild(shioriButton);
+      mapContainer.appendChild(registerButton);
       mapContainer.appendChild(deleteMapButton);
       document.body.appendChild(showMapIcon);
       document.body.appendChild(mapContainer);
