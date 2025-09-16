@@ -55,7 +55,7 @@ export default function Header(props) {
       component="nav"
       sx={{backgroundColor: "#CDE8E5"}}
       >
-        <Toolbar sx={{display: 'flex', justifyContent: 'space-between'}}>
+        <Toolbar sx={{display: 'flex'}}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -68,7 +68,7 @@ export default function Header(props) {
           <img 
           src={icon}
           alt='icon'
-          className='h-10 w-auto'
+          className='h-10 w-auto mr-8'
           />
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
             {navItems.map((item) => (

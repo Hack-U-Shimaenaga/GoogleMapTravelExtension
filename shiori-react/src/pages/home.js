@@ -1,34 +1,25 @@
 import React from 'react';
 import TextField from '@mui/material/TextField';
 import { useState } from "react";
-import Container from '@mui/material/Container'
+import Container from '@mui/material/Container';
 import dayjs from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
-import PlaceCard from "../components/home/placeCard"
+import PlaceCard from "../components/home/placeCard";
+import InputText from "../components/home/inputText";
 
 export default function Home({ className }) {
     // フォームinit
     const [input, setInput] = useState({
-        tripTitle: "〇〇旅行",
-        startTime: "",
-        endTime: ""
+        tripTitle: "〇〇旅行"
     });
 
-    const [inputError, setInputError] = useState(false);
-
-    const onChangeInput = (event) => {      
-        setInput(event.target.value); 
-        if (event.target.value) {
-            setInputError(false);
-        }        
-    };
-
-    const onBlurInput = (event) => {   
-        if (!event.target.value) {
-            setInputError(true);
-        }
+    const onChangeInput = (name, value) => {
+        setInput({
+        ...input,
+        [name]: value,
+        });
     };
 
     // 日付入力フォームinit
@@ -101,16 +92,14 @@ export default function Home({ className }) {
             <Container fixed className={`${className}`}>
                 <div>
                     <h1 className=' text-lg'>旅行のタイトルを決めましょう！</h1>
-                    <TextField
-                        id="outlined-required"
+                    <InputText
+                        name="tripTitle"
                         label="Title"
                         value={input.tripTitle}
                         onChange={onChangeInput}
-                        onBlur={onBlurInput}
-                        error={inputError}
-                        helperText={inputError ? "入力してください" : ""}
                         sx={{ width: "32rem", mt: "15px", backgroundColor: "#FFFFFF"}}
                     />
+
                 </div>
                 <div 
                     className='mt-8'
@@ -177,8 +166,9 @@ export default function Home({ className }) {
                         </div>
                     </LocalizationProvider>
                 </div>
+                <p className='mt-8'>行動計画</p>
                 <div
-                    className='mt-8'
+                    className='mt-2'
                 >
                     <PlaceCard />
                 </div>
