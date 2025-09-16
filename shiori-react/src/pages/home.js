@@ -200,10 +200,11 @@ export default function Home({ className }) {
                         </div>
                     </LocalizationProvider>
                 </div>
+                <p className='mt-8'>行動計画</p>
+
                 <div
-                    className='mt-8'
+                    className='mt-2'
                 >
-                    選んだ行き先
                     {addressList.map((address, index) => (
                         <PlaceCard key={index} address={address} />
                     ))}
