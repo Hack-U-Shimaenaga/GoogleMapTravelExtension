@@ -13,6 +13,29 @@ export default function Home({ className }) {
 
     const [addressList, setAddressList] = useState([]);
 
+    // 出発地と最終目的地用のstate
+    const [location, setLocation] = useState({
+        startLocation: "◯◯ホテル",
+        endLocation: "◯◯ホテル"
+    });
+
+    const [locationBlankError, setLocationBlankError] = useState(false);
+
+    // 入力変更時
+    const onChangeLocation = (field, value) => {
+        setLocation((prev) => ({ ...prev, [field]: value }));
+        if (value) {
+            setLocationBlankError(false);
+        }
+    };
+
+    // フォーカスアウト時
+    const onBlurLocation = () => {
+        if (!location.startLocation || !location.endLocation) {
+            setLocationBlankError(true);
+        }
+    };
+
     useEffect(() => {
         window.addEventListener("message", (event) => {
             if (event.origin !== "http://localhost:3000") return;
@@ -200,14 +223,41 @@ export default function Home({ className }) {
                         </div>
                     </LocalizationProvider>
                 </div>
-                <p className='mt-8'>行動計画</p>
+                <div className='mt-8'>
+                    <p>出発地と最終目的地を入力してください</p>
+                    <div style={{ display: "flex", gap: "1rem", marginTop: "15px" }}>
+                        <TextField
+                            label="出発地"
+                            value={location.startLocation}
+                            onChange={(e) => onChangeLocation("startLocation", e.target.value)}
+                            onBlur={onBlurLocation}
+                            error={locationBlankError}
+                            helperText={locationBlankError ? "出発地を入力してください" : ""}
+                            sx={{ backgroundColor: "#FFFFFF" }}
+                        />
+
+                        <TextField
+                            label="最終目的地"
+                            value={location.endLocation}
+                            onChange={(e) => onChangeLocation("endLocation", e.target.value)}
+                            onBlur={onBlurLocation}
+                            error={locationBlankError}
+                            helperText={locationBlankError ? "最終目的地を入力してください" : ""}
+                            sx={{ backgroundColor: "#FFFFFF" }}
+                        />
+
+                    </div>
+                </div>
+
+                <p className='mt-8'>行動計画: 回りたい順に並べ替えてください</p>
 
                 <div
                     className='mt-2'
-                >
+                >   
                     {addressList.map((address, index) => (
                         <PlaceCard key={index} address={address} />
                     ))}
+
                 </div>
 
             </Container>
