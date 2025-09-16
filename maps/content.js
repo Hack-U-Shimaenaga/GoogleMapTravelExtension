@@ -40,32 +40,28 @@ window.onload = function() {
   // もしJWTを保持してなかったら、新しくJWTを取得して、認証を元に、userの情報を取得
   async function init() {
     // 保存されている JWT を取得
-    let currentJWT = await getCurrentJWT(); // await 必須
-    console.log("currentJWT", currentJWT);
+    // let currentJWT = await getCurrentJWT(); // await 必須
+    // console.log("currentJWT", currentJWT);
 
-    if (!currentJWT) {
-      // JWT がなければ新規取得
-      let username = "test_user";
-      let password = "password";
-      currentJWT = await getNewJWT(username, password);
-    }
+    // if (!currentJWT) {
+    //   // JWT がなければ新規取得
+    //   let username = "test_user";
+    //   let password = "password";
+    //   currentJWT = await getNewJWT(username, password);
+    // }
 
-    // JWT を使って認証
-    const userData = await authJWT(currentJWT);
+    // // JWT を使って認証
+    // const userData = await authJWT(currentJWT);
 
-    console.log("username");
-    console.log(userData.user);
+    // console.log("username");
+    // console.log(userData.user);
 
-    let addresses = userData.addresses || [];
-    let addressToNameDict = userData.addressToNameDict || {};
-    chrome.storage.local.set({ addresses: addresses }, () => {
-      console.log("addresses saved to storage");
-      console.log(addresses);
-    });
-    chrome.storage.local.set({ addressToNameDict: addressToNameDict }, () => {
-      console.log("addressToNameDict saved to storage");
-      console.log(addressToNameDict);
-    });
+    let result = await chrome.storage.local.get(["addresses"]);
+    const addresses = result.addresses || [];
+    result = await chrome.storage.local.get(["addressToNameDict"]);
+    const addressToNameDict = result.addressToNameDict || [];
+    console.log(addresses);
+    console.log(addressToNameDict);
     if (addresses != null && addresses.length != 0) {
       await showNewAddress();
     }
@@ -267,12 +263,26 @@ window.onload = function() {
       makeResizableLeftBottom(mapContainer);
       makeDraggable(mapContainer); // ← ドラッグできるように追加
 
-      // iframe作成
+      // Map iframe作成
       const mapIframe = document.createElement('iframe');
       mapIframe.src = `https://msi15vtq54.execute-api.ap-northeast-1.amazonaws.com/dev_travel/map`;
       mapIframe.width = "100%";
       mapIframe.height = "100%";
       mapIframe.style.border = "0";
+
+      // Login iframe作成
+      const loginIframe = document.createElement('iframe');
+      loginIframe.src = `https://msi15vtq54.execute-api.ap-northeast-1.amazonaws.com/dev_travel/show_login`;
+      loginIframe.width = "100%";
+      loginIframe.height = "100%";
+      loginIframe.style.border = "0";
+
+      // Register iframe作成
+      const registerIframe = document.createElement('iframe');
+      registerIframe.src = `https://msi15vtq54.execute-api.ap-northeast-1.amazonaws.com/dev_travel/show_register`;
+      registerIframe.width = "100%";
+      registerIframe.height = "100%";
+      registerIframe.style.border = "0";
 
 
       // deleteボタン作成
@@ -303,6 +313,29 @@ window.onload = function() {
       shrinkMapButton.style.border = 'none';
       shrinkMapButton.style.padding = '5px 10px';
       shrinkMapButton.style.cursor = 'pointer';
+
+      // しおり作るボタン
+      const shioriButton = document.createElement('button');
+      shioriButton.textContent = "しおりを作る";
+      shioriButton.style.position = 'absolute';
+      shioriButton.style.bottom = '0px';
+      shioriButton.style.right = '0px';
+      shioriButton.style.backgroundColor = "yellow";
+      shioriButton.style.border = 'none';
+      shioriButton.style.padding = '5px 10px';
+      shioriButton.style.cursor = 'pointer';
+
+      // 新規アカウント作るボタン
+      const registerButton = document.createElement('button');
+      registerButton.textContent = "新規アカウント作る";
+      registerButton.style.position = 'absolute';
+      registerButton.style.bottom = '0px';
+      registerButton.style.right = '0px';
+      registerButton.style.backgroundColor = "yellow";
+      registerButton.style.border = 'none';
+      registerButton.style.padding = '5px 10px';
+      registerButton.style.cursor = 'pointer';
+      registerButton.style.display = 'none';
 
       // 「地図の表示」ボタン作成（最初は非表示）
       const showMapIcon = document.createElement('img');
@@ -336,11 +369,39 @@ window.onload = function() {
         showMapIcon.style.display = 'none';
       });
 
+      // しおりボタンクリック時の処理
+      shioriButton.addEventListener('click', async function() {
+        // mapIframe.style.display = "none";
+        // shioriButton.style.display = "none";
+        // registerButton.style.display = "block";
+
+        const result = await chrome.storage.local.get(["addresses"]);
+        const addressList = result.addresses || [];
+
+        const query = encodeURIComponent(JSON.stringify(addressList));
+        window.top.location.href = `http://localhost:3000?addresses=${query}`;
+
+      });
+
+
+      // 新規ボタンクリック時の処理
+      registerButton.addEventListener('click', function() {
+        mapIframe.style.display = "none";
+        loginIframe.style.display = "none";
+        registerIframe.style.display = "block";
+        shioriButton.style.display = "none";
+        registerButton.style.display = "none";
+      });
+
 
 
       // コンテナに追加
       mapContainer.appendChild(mapIframe);
+      mapContainer.appendChild(loginIframe);
+      mapContainer.appendChild(registerIframe);
       mapContainer.appendChild(shrinkMapButton);
+      mapContainer.appendChild(shioriButton);
+      mapContainer.appendChild(registerButton);
       mapContainer.appendChild(deleteMapButton);
       document.body.appendChild(showMapIcon);
       document.body.appendChild(mapContainer);
