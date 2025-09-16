@@ -324,6 +324,7 @@ window.onload = function() {
       // しおり作るボタン
       const shioriButton = document.createElement('button');
       shioriButton.textContent = "しおりを作る";
+      shioriButton.style.color = "black";
       shioriButton.style.position = 'absolute';
       shioriButton.style.bottom = '0px';
       shioriButton.style.right = '0px';
