@@ -369,11 +369,19 @@ window.onload = function() {
       });
 
       // しおりボタンクリック時の処理
-      shioriButton.addEventListener('click', function() {
+      shioriButton.addEventListener('click', async function() {
         mapIframe.style.display = "none";
         shioriButton.style.display = "none";
         registerButton.style.display = "block";
+
+        const result = await chrome.storage.local.get(["addresses"]);
+        const addressList = result.addresses || [];
+
+        const query = encodeURIComponent(JSON.stringify(addressList));
+        window.top.location.href = `http://localhost:3000?addresses=${query}`;
+
       });
+
 
       // 新規ボタンクリック時の処理
       registerButton.addEventListener('click', function() {
