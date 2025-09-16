@@ -7,6 +7,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import PlaceCard from "../components/home/placeCard"
+import SortablePlaceList from "../components/home/SortablePlaceList"
 import { useEffect } from 'react';
 
 export default function Home({ className }) {
@@ -254,9 +255,7 @@ export default function Home({ className }) {
                 <div
                     className='mt-2'
                 >   
-                    {addressList.map((address, index) => (
-                        <PlaceCard key={index} address={address} />
-                    ))}
+                    <SortablePlaceList initialAddresses={addressList} />;
 
                 </div>
 
