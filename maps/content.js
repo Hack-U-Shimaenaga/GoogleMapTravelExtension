@@ -419,7 +419,7 @@ window.onload = function() {
         let result = await chrome.storage.local.get(["addresses"]);
         const addressList = result.addresses || [];
         result = await chrome.storage.local.get(["addressToNameDict"]);
-        const addressToNameDict = result.addressToNameDict || [];
+        const addressToNameDict = result.addressToNameDict || {};
         console.log("addressList");
         console.log(addressList);
         console.log("addressToNameDict")
