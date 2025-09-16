@@ -203,6 +203,7 @@ export default function Home({ className }) {
                 <div
                     className='mt-8'
                 >
+                    選んだ行き先
                     {addressList.map((address, index) => (
                         <PlaceCard key={index} address={address} />
                     ))}
