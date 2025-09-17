@@ -9,6 +9,7 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import PlaceCard from "../components/home/placeCard"
 import SortablePlaceList from "../components/home/SortablePlaceList"
 import { useEffect } from 'react';
+import PdfButton from '../components/home/pdfButton';
 
 export default function Home({ className }) {
 
@@ -258,7 +259,7 @@ export default function Home({ className }) {
                     <SortablePlaceList initialAddresses={addressList} />;
 
                 </div>
-
+                <PdfButton />
             </Container>
         </div>
 
