@@ -13,11 +13,13 @@ import { useEffect } from 'react';
 export default function Home({ className }) {
 
     const [addressList, setAddressList] = useState([]);
+    const [routeInfo, setRouteInfo] = useState(null);
+    const [routeError, setRouteError] = useState(null);
 
     // 出発地と最終目的地用のstate
     const [location, setLocation] = useState({
-        startLocation: "◯◯ホテル",
-        endLocation: "◯◯ホテル"
+        startLocation: "東京駅",
+        endLocation: "新宿駅"
     });
 
     const [locationBlankError, setLocationBlankError] = useState(false);
@@ -137,7 +139,47 @@ export default function Home({ className }) {
         } else if (!time.startat.isBefore(time.endat)) {
             setTimeOrderError(true);
         }
-    };   
+    };  
+    
+
+    // 経由地どこいった？？？
+    const fetchRouteInfo = async () => {
+        setRouteError(null);
+        setRouteInfo(null);
+
+        if (!window.google || !window.google.maps) {
+            setRouteError("Google Mapsの読み込みに失敗しました");
+            return;
+        }
+
+        const directionsService = new window.google.maps.DirectionsService();
+
+        directionsService.route(
+            {
+                origin: location.startLocation,
+                destination: location.endLocation,
+                travelMode: window.google.maps.TravelMode.DRIVING, // TRANSITじゃできない 
+                language: "ja"
+            },
+            (result, status) => {
+                if (status === "OK") {
+                    const leg = result.routes[0].legs[0];
+                    setRouteInfo({
+                        duration: leg.duration.text,
+                        distance: leg.distance.text,
+                        steps: leg.steps.map(step => ({
+                            travel_mode: step.travel_mode,
+                            instructions: step.instructions.replace(/<[^>]+>/g, ''),
+                            duration: step.duration.text,
+                            distance: step.distance.text
+                        }))
+                    });
+                } else {
+                    setRouteError("経路が見つかりませんでした");
+                }
+            }
+        );
+    };
 
 
 
@@ -257,6 +299,37 @@ export default function Home({ className }) {
                 >   
                     <SortablePlaceList initialAddresses={addressList} />;
 
+                </div>
+
+                <div className='mt-4'>
+                    <button
+                        onClick={fetchRouteInfo}
+                        style={{
+                            background: "#4D869C",
+                            color: "white",
+                            padding: "8px 16px",
+                            border: "none",
+                            borderRadius: "4px",
+                            cursor: "pointer"
+                        }}
+                    >
+                        経路検索
+                    </button>
+                    {routeError && <div style={{ color: "red" }}>{routeError}</div>}
+                    {routeInfo && (
+                        <div className="mt-2 p-2 bg-blue-1 rounded">
+                            <div>所要時間: {routeInfo.duration}</div>
+                            <div>距離: {routeInfo.distance}</div>
+                            <div>経路:</div>
+                            <ol>
+                                {routeInfo.steps.map((step, idx) => (
+                                    <li key={idx}>
+                                        {idx + 1}. {step.instructions}（{step.duration}, {step.distance}）
+                                    </li>
+                                ))}
+                            </ol>
+                        </div>
+                    )}
                 </div>
 
             </Container>
