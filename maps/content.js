@@ -346,19 +346,19 @@ window.onload = function() {
       registerButton.style.display = 'none';
 
       // 「地図の表示」ボタン作成（最初は非表示）
-      const showMapIcon = document.createElement('img');
+      const showMapIcon = document.createElement('div');
 
       showMapIcon.style.position = 'fixed';
       showMapIcon.style.top = '5px';
       showMapIcon.style.right = '20px';
-      showMapIcon.style.width = '20px';
+      showMapIcon.style.width = '50px';
       showMapIcon.style.height = '20px';
       showMapIcon.style.background = 'white';
       showMapIcon.style.border = '1px solid black';
       showMapIcon.style.cursor = 'pointer';
       showMapIcon.style.display = 'none'; // 最初は非表示
-      showMapIcon.src = 'https://img.icons8.com/ios-filled/50/000000/marker.png'
-      showMapIcon.alt = "map";
+      showMapIcon.textContent = "Map"
+      showMapIcon.style.textAlign = "center";
 
       // 縮小ボタンクリック時の処理
       shrinkMapButton.addEventListener('click', function() {
