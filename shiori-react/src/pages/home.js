@@ -256,7 +256,7 @@ export default function Home({ className }) {
                 <div
                     className='mt-2'
                 >   
-                    <SortablePlaceList initialAddresses={addressList} />;
+                    <SortablePlaceList initialAddresses={addressList} />
 
                 </div>
                 <PdfButton />
