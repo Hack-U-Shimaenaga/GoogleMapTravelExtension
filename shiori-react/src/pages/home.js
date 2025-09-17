@@ -8,6 +8,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import PlaceCard from "../components/home/placeCard"
 import { useEffect } from 'react';
+import PdfButton from '../components/home/pdfButton';
 
 export default function Home({ className }) {
 
@@ -208,7 +209,7 @@ export default function Home({ className }) {
                         <PlaceCard key={index} address={address} />
                     ))}
                 </div>
-
+                <PdfButton />
             </Container>
         </div>
 
