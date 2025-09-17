@@ -249,8 +249,10 @@ window.onload = function() {
     try {
       // コンテナ作成
       mapContainer.style.position = 'fixed';
-      mapContainer.style.left = '20px';   // ← right を削除して left に変更
-      mapContainer.style.top = '20px';
+
+      // 最初は右上に固定
+      mapContainer.style.right = '0px';
+      mapContainer.style.top = '0px';
       mapContainer.style.width = '300px';
       mapContainer.style.height = '250px';
       mapContainer.style.zIndex = '9999';
@@ -259,6 +261,7 @@ window.onload = function() {
       mapContainer.style.resize = 'both';
       mapContainer.style.overflow = 'auto';
       mapContainer.id = 'mapContainer';
+      mapContainer.style.backgroundColor = "white";
 
       makeResizableLeftBottom(mapContainer);
       makeDraggable(mapContainer); // ← ドラッグできるように追加
@@ -266,8 +269,12 @@ window.onload = function() {
       // Map iframe作成
       const mapIframe = document.createElement('iframe');
       mapIframe.src = `https://msi15vtq54.execute-api.ap-northeast-1.amazonaws.com/dev_travel/map`;
-      mapIframe.width = "100%";
-      mapIframe.height = "100%";
+      mapIframe.width = "92%";
+      mapIframe.height = "92%";
+      mapIframe.style.marginTop = "4%"
+      mapIframe.style.marginBottom = "4%"
+      mapIframe.style.marginLeft = "4%"
+      mapIframe.style.marginRight = "4%"
       mapIframe.style.border = "0";
 
       // Login iframe作成
@@ -317,6 +324,7 @@ window.onload = function() {
       // しおり作るボタン
       const shioriButton = document.createElement('button');
       shioriButton.textContent = "しおりを作る";
+      shioriButton.style.color = "black";
       shioriButton.style.position = 'absolute';
       shioriButton.style.bottom = '0px';
       shioriButton.style.right = '0px';
@@ -397,8 +405,8 @@ window.onload = function() {
 
       // コンテナに追加
       mapContainer.appendChild(mapIframe);
-      mapContainer.appendChild(loginIframe);
-      mapContainer.appendChild(registerIframe);
+      // mapContainer.appendChild(loginIframe);
+      // mapContainer.appendChild(registerIframe);
       mapContainer.appendChild(shrinkMapButton);
       mapContainer.appendChild(shioriButton);
       mapContainer.appendChild(registerButton);
@@ -411,7 +419,7 @@ window.onload = function() {
         let result = await chrome.storage.local.get(["addresses"]);
         const addressList = result.addresses || [];
         result = await chrome.storage.local.get(["addressToNameDict"]);
-        const addressToNameDict = result.addressToNameDict || [];
+        const addressToNameDict = result.addressToNameDict || {};
         console.log("addressList");
         console.log(addressList);
         console.log("addressToNameDict")

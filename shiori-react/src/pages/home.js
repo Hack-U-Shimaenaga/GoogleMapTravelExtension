@@ -7,12 +7,36 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import PlaceCard from "../components/home/placeCard"
+import SortablePlaceList from "../components/home/SortablePlaceList"
 import { useEffect } from 'react';
 import PdfButton from '../components/home/pdfButton';
 
 export default function Home({ className }) {
 
     const [addressList, setAddressList] = useState([]);
+
+    // 出発地と最終目的地用のstate
+    const [location, setLocation] = useState({
+        startLocation: "◯◯ホテル",
+        endLocation: "◯◯ホテル"
+    });
+
+    const [locationBlankError, setLocationBlankError] = useState(false);
+
+    // 入力変更時
+    const onChangeLocation = (field, value) => {
+        setLocation((prev) => ({ ...prev, [field]: value }));
+        if (value) {
+            setLocationBlankError(false);
+        }
+    };
+
+    // フォーカスアウト時
+    const onBlurLocation = () => {
+        if (!location.startLocation || !location.endLocation) {
+            setLocationBlankError(true);
+        }
+    };
 
     useEffect(() => {
         window.addEventListener("message", (event) => {
@@ -201,13 +225,39 @@ export default function Home({ className }) {
                         </div>
                     </LocalizationProvider>
                 </div>
+                <div className='mt-8'>
+                    <p>出発地と最終目的地を入力してください</p>
+                    <div style={{ display: "flex", gap: "1rem", marginTop: "15px" }}>
+                        <TextField
+                            label="出発地"
+                            value={location.startLocation}
+                            onChange={(e) => onChangeLocation("startLocation", e.target.value)}
+                            onBlur={onBlurLocation}
+                            error={locationBlankError}
+                            helperText={locationBlankError ? "出発地を入力してください" : ""}
+                            sx={{ backgroundColor: "#FFFFFF" }}
+                        />
+
+                        <TextField
+                            label="最終目的地"
+                            value={location.endLocation}
+                            onChange={(e) => onChangeLocation("endLocation", e.target.value)}
+                            onBlur={onBlurLocation}
+                            error={locationBlankError}
+                            helperText={locationBlankError ? "最終目的地を入力してください" : ""}
+                            sx={{ backgroundColor: "#FFFFFF" }}
+                        />
+
+                    </div>
+                </div>
+
+                <p className='mt-8'>行動計画: 回りたい順に並べ替えてください</p>
+
                 <div
-                    className='mt-8'
-                >
-                    選んだ行き先
-                    {addressList.map((address, index) => (
-                        <PlaceCard key={index} address={address} />
-                    ))}
+                    className='mt-2'
+                >   
+                    <SortablePlaceList initialAddresses={addressList} />;
+
                 </div>
                 <PdfButton />
             </Container>
