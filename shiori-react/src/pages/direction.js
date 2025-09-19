@@ -3,6 +3,7 @@ import { useState } from "react";
 import dayjs from "dayjs";
 import { useEffect } from "react";
 export default function Directions({ origin, destination, places, departureTime, endTime }) {
+  const [newPlaces, setNewPlaces] = useState([])
   const [info, setInfo] = useState([]);
   const addressList = places.map(place => place.address);
 
@@ -13,6 +14,8 @@ export default function Directions({ origin, destination, places, departureTime,
     const waypoints = [origin, ...addressList, destination];
     console.log("waypoints")
     console.log(waypoints)
+    console.log(places)
+    setNewPlaces(places);
     const results = [];
     let currentTime = departureTime; // 出発時間
 
@@ -40,7 +43,7 @@ export default function Directions({ origin, destination, places, departureTime,
       const durationText = data.routes[0].legs[0].duration.text;
 
       console.log("places??");
-      console.log(places[i]);
+      console.log(newPlaces[i]);
 
       console.log("currentTime before")
       console.log(currentTime);
@@ -48,7 +51,7 @@ export default function Directions({ origin, destination, places, departureTime,
       console.log("durationSec");
       console.log(durationSec);
 
-      const stayTimeMin = i < places.length ? places[i].time : 0;
+      const stayTimeMin = i < newPlaces.length ? newPlaces[i].time : 0;
 
       const arriveTime = currentTime.add(durationSec, 'second');
       console.log("arriveTime");
@@ -60,7 +63,7 @@ export default function Directions({ origin, destination, places, departureTime,
         duration: durationText,
         startTime: currentTime.format("HH:mm"),
         arriveTime: arriveTime.format("HH:mm"),
-        todo: i < places.length ? places[i].todo : "",
+        todo: i < newPlaces.length ? newPlaces[i].todo : "",
         staytime: stayTimeMin
       });
 
