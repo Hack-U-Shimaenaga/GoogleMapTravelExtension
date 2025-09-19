@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function CreatePDF() {
+export default function CreatePDF({ tripTitle, date, time, location, addressList }) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -81,8 +81,8 @@ export default function CreatePDF() {
           {/* ヘッダー */}
           <View style={styles.header}>
             <Text style={styles.dayTitle}>DAY 1</Text>
-            <Text style={styles.dateText}>2025年9月20日（土）</Text>
-            <Text style={styles.dateText}>東京旅行</Text>
+            <Text style={styles.dateText}>{date}</Text>
+            <Text style={styles.dateText}>{tripTitle}</Text>
           </View>
 
           {/* 行動予定 */}

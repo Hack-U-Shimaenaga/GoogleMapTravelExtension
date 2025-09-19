@@ -259,7 +259,13 @@ export default function Home({ className }) {
                     <SortablePlaceList initialAddresses={addressList} />
 
                 </div>
-                <PdfButton />
+                <PdfButton
+                    tripTitle={input.tripTitle}
+                    date={date}
+                    time={time}
+                    location={location}
+                    addressList={addressList}
+                />
             </Container>
         </div>
 
