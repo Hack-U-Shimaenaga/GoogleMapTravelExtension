@@ -11,7 +11,8 @@
       "*://www.youtube.com/*",
       "*://www.google.com/search*",
       "*://www.google.co.jp/search*",
-      "*://chat.openai.com/*"
+      "*://chat.openai.com/*",
+      "https://chatgpt.com/*"
     ],
     "js": [
       "content.js"

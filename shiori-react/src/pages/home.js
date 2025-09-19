@@ -10,15 +10,33 @@ import PlaceCard from "../components/home/placeCard"
 import SortablePlaceList from "../components/home/SortablePlaceList"
 import { useEffect } from 'react';
 import PdfButton from '../components/home/pdfButton';
+import Directions from './direction';
 
 export default function Home({ className }) {
 
     const [addressList, setAddressList] = useState([]);
+    const [places, setPlaces] = useState([]);
+
+    // addressList が更新されたら places を生成
+    useEffect(() => {
+    if (!addressList) return;
+
+    const newPlaces = addressList.map((address) => ({
+        address,
+        todo: "観光",   // デフォルトの todo
+        staytime: 0,     // デフォルトの滞在時間
+    }));
+
+    setPlaces(newPlaces);
+    }, [addressList]);
+
+    
+
 
     // 出発地と最終目的地用のstate
     const [location, setLocation] = useState({
-        startLocation: "◯◯ホテル",
-        endLocation: "◯◯ホテル"
+        startLocation: "金沢駅",
+        endLocation: "金沢駅"
     });
 
     const [locationBlankError, setLocationBlankError] = useState(false);
@@ -256,9 +274,19 @@ export default function Home({ className }) {
                 <div
                     className='mt-2'
                 >   
-                    <SortablePlaceList initialAddresses={addressList} />
+                    <SortablePlaceList
+                    initialAddresses={addressList}
+                    onOrderChange={(newAddresses, newPlaces) => {
+                        console.log("新しい順番:", newAddresses);
+                        console.log("対応するtodoとtime:", newPlaces);
+                        setAddressList(newAddresses);
+                        setPlaces(newPlaces); // もし保持したい場合
+                    }}
+                    />
+
 
                 </div>
+                <Directions origin={location.startLocation} destination={location.endLocation} places={places} departureTime={time.startat} endTime={time.endat}/>
                 <PdfButton />
             </Container>
         </div>
