@@ -8,50 +8,31 @@ import InputText from '../home/inputText';
 import InputNumber from '../home/inputNumber';
 import { useState } from 'react';
 
-export default function PlaceCard({address}) {
-  const [input, setInput] = useState({
-      todo: "観光",
-      time: ""
-  });
+// PlaceCard.js
+export default function PlaceCard({ address, todo, time, dragHandleProps, onChange }) {
+  const [input, setInput] = useState({ todo, time });
 
-  const onChangeInput = (name, value) => {
-      setInput({
-      ...input,
-      [name]: value,
-      });
+  const handleChange = (name, value) => {
+    const updated = { ...input, [name]: value };
+    setInput(updated);
+    onChange(updated);  // 親に渡す
   };
-  
 
   return (
-    <Card sx={{ width: "90%", margin: "30px"}}>
+    <Card sx={{ width: "90%", margin: "30px" }}>
       <CardContent>
-        <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: "18px" }}>
-          {address}
-        </Typography>
-        <div className="flex items-center space-x-4 mt-2">
-        <Typography sx={{ mt: 1.5, fontSize: "15px" }}>やること</Typography>
-        <InputText 
-          name="todo"
-          label="To do"
-          value={input.todo}
-          onChange={onChangeInput}
-          sx={{ width: "20rem", mt: "10px", backgroundColor: "#FFFFFF"}}
-        />
-        <Typography sx={{ mt: 1.5, fontSize: "15px" }}>所要時間</Typography>
-
-        <div
-          className='flex items-end'
-        >
-          <InputNumber
-            name="time"
-            label="Required time"
-            value={input.time}
-            onChange={onChangeInput}
-            sx={{ width: "15rem", mt: "10px", backgroundColor: "#FFFFFF"}}
-          />
-          <Typography sx={{"margin-left": '1rem'}}>min</Typography>
-
+        <div className="flex items-center justify-between">
+          <Typography sx={{ fontSize: "18px" }}>{address}</Typography>
+          <div {...dragHandleProps} style={{ cursor: "grab", fontSize: "2rem" }}>☰</div>
         </div>
+
+        <div className="flex items-center space-x-4 mt-2">
+          <Typography sx={{ fontSize: "15px" }}>やること</Typography>
+          <InputText name="todo" label="To do" value={input.todo} onChange={handleChange} />
+
+          <Typography sx={{ fontSize: "15px" }}>所要時間</Typography>
+          <InputNumber name="time" label="Required time" value={input.time} onChange={handleChange} />
+          <Typography sx={{ ml: 1 }}>min</Typography>
         </div>
       </CardContent>
     </Card>

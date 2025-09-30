@@ -4,6 +4,7 @@ import './index.css';
 import Home from './pages/home';
 import Header from './components/common/header';
 import Footer from './components/common/footer'
+import Directions from './pages/direction';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

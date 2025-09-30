@@ -225,10 +225,14 @@ window.onload = function() {
   async function addAddressToNameDict(address, placeName) {
     // 既存の辞書を取得（なければ空オブジェクト）
     const result = await chrome.storage.local.get(["addressToNameDict"]);
-    const addressToNameDict = result.addressToNameDict || [];
+    const addressToNameDict = result.addressToNameDict || {};
+
+    console.log("before set");
+    console.log(addressToNameDict);
 
     // 例: placeNameをキーにして値をセット
     addressToNameDict[address] = placeName; // ここに対応する名前や情報を入れる
+    console.log(addressToNameDict);
 
     // 保存
     chrome.storage.local.set({ addressToNameDict: addressToNameDict }, () => {
